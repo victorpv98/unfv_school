@@ -1,0 +1,138 @@
+@import 'tailwindcss';
+
+@source '../views/**/*.blade.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root {
+    --school-blue: #123b7a;
+    --school-blue-dark: #08285d;
+    --school-yellow: #f8e600;
+    --school-yellow-soft: #fff8b7;
+    --school-green: #078b2f;
+    --school-orange: #e94a1a;
+    --school-red: #e63700;
+    --school-cream: #fffef2;
+    --school-light: #f6f8ed;
+    --school-ink: #172033;
+    --school-border: #e7e5c9;
+    --unfv-primary: var(--school-blue);
+    --unfv-primary-dark: var(--school-blue-dark);
+    --unfv-secondary: var(--school-green);
+    --unfv-dark: var(--school-blue-dark);
+    --unfv-light: var(--school-light);
+    --unfv-border: var(--school-border);
+}
+
+@layer base {
+    body {
+        background:
+            radial-gradient(circle at top right, rgba(248, 230, 0, .18), transparent 28rem),
+            linear-gradient(180deg, var(--school-cream) 0%, var(--school-light) 100%);
+        color: var(--school-ink);
+    }
+
+    input,
+    select,
+    textarea {
+        border: 1px solid #ced4da;
+        background-color: #fff;
+        color: #1f2937;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--unfv-primary);
+        box-shadow: 0 0 0 .2rem rgba(18, 59, 122, .16);
+        outline: none;
+    }
+}
+
+@layer components {
+    .school-sidebar,
+    .unfv-sidebar {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 14rem),
+            linear-gradient(160deg, var(--school-blue-dark) 0%, var(--school-blue) 62%, #0b5c2b 100%);
+        box-shadow: 8px 0 30px rgba(8, 40, 93, .18);
+    }
+
+    .school-card,
+    .unfv-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(18, 59, 122, .08);
+        border-top: 4px solid var(--school-yellow);
+        background: rgba(255, 255, 255, .94);
+        box-shadow: 0 14px 32px rgba(18, 59, 122, .10);
+    }
+
+    .school-card::before,
+    .unfv-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 4px;
+        background: linear-gradient(180deg, var(--school-green), var(--school-orange));
+    }
+
+    .school-panel,
+    .unfv-panel {
+        border: 1px solid rgba(18, 59, 122, .08);
+        background: rgba(255, 255, 255, .96);
+        box-shadow: 0 14px 32px rgba(18, 59, 122, .10);
+    }
+
+    .school-button-primary,
+    .unfv-button-primary {
+        background: linear-gradient(135deg, var(--school-blue), var(--school-blue-dark));
+        color: #fff;
+        box-shadow: 0 10px 18px rgba(18, 59, 122, .18);
+    }
+
+    .school-button-primary:hover,
+    .unfv-button-primary:hover {
+        background: linear-gradient(135deg, var(--school-blue-dark), #061f4a);
+    }
+
+    .school-button-secondary,
+    .unfv-button-secondary {
+        background: var(--school-green);
+        color: #fff;
+    }
+
+    .school-button-secondary:hover,
+    .unfv-button-secondary:hover {
+        background: #056f27;
+    }
+
+    .school-button-accent {
+        background: var(--school-orange);
+        color: #fff;
+    }
+
+    .school-button-accent:hover {
+        background: var(--school-red);
+    }
+
+    .school-title {
+        color: var(--school-blue);
+    }
+
+    .school-accent {
+        color: var(--school-orange);
+    }
+
+    .school-badge {
+        border: 1px solid rgba(248, 230, 0, .65);
+        background: rgba(255, 248, 183, .85);
+        color: var(--school-blue-dark);
+    }
+}
