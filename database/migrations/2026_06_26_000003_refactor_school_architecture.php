@@ -49,27 +49,70 @@ return new class extends Migration
             }
         });
 
-        Schema::table('course_teacher', function (Blueprint $table) {
-            if (! Schema::hasColumn('course_teacher', 'academic_year_id')) {
-                $table->foreignId('academic_year_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
-            }
-        });
-
-        if (DB::getDriverName() !== 'sqlite') {
-            Schema::table('course_teacher', function (Blueprint $table) {
-                $table->dropUnique('course_teacher_unique');
-                $table->unique(['academic_year_id', 'course_id', 'teacher_id', 'grade_id', 'section_id'], 'course_teacher_year_unique');
-            });
+        if (Schema::hasTable('course_teacher') && ! Schema::hasTable('teacher_assignments')) {
+            Schema::rename('course_teacher', 'teacher_assignments');
         }
 
-        if (Schema::hasTable('academic_years') && Schema::hasColumn('course_teacher', 'academic_year_id')) {
+        if (Schema::hasTable('teacher_assignments')) {
+            Schema::table('teacher_assignments', function (Blueprint $table) {
+                if (! Schema::hasColumn('teacher_assignments', 'academic_year_id')) {
+                    $table->foreignId('academic_year_id')->nullable()->after('id')->constrained()->cascadeOnDelete();
+                }
+
+                if (! Schema::hasColumn('teacher_assignments', 'level_id')) {
+                    $table->foreignId('level_id')->nullable()->after('teacher_id')->constrained()->nullOnDelete();
+                }
+
+                if (! Schema::hasColumn('teacher_assignments', 'section')) {
+                    $table->string('section', 1)->nullable()->after('grade_id');
+                }
+            });
+
+            if (Schema::hasColumn('teacher_assignments', 'section_id')) {
+                DB::table('teacher_assignments')
+                    ->leftJoin('sections', 'sections.id', '=', 'teacher_assignments.section_id')
+                    ->update([
+                        'section' => DB::raw('sections.name'),
+                    ]);
+
+                Schema::table('teacher_assignments', function (Blueprint $table) {
+                    $table->dropForeign(['section_id']);
+                    $table->dropColumn('section_id');
+                });
+            }
+        }
+
+        if (Schema::hasTable('enrollments') && ! Schema::hasColumn('enrollments', 'section')) {
+            Schema::table('enrollments', function (Blueprint $table) {
+                $table->string('section', 1)->nullable()->after('section_id');
+            });
+
+            if (Schema::hasTable('sections') && Schema::hasColumn('enrollments', 'section_id')) {
+                DB::table('enrollments')
+                    ->leftJoin('sections', 'sections.id', '=', 'enrollments.section_id')
+                    ->update([
+                        'section' => DB::raw('sections.name'),
+                    ]);
+            }
+
+            if (Schema::hasColumn('enrollments', 'section_id')) {
+                Schema::table('enrollments', function (Blueprint $table) {
+                    $table->dropForeign(['section_id']);
+                    $table->dropColumn('section_id');
+                });
+            }
+        }
+
+        if (Schema::hasTable('academic_years') && Schema::hasTable('teacher_assignments') && Schema::hasColumn('teacher_assignments', 'academic_year_id')) {
             $activeYearId = DB::table('academic_years')->where('status', 'activo')->orderByDesc('year')->value('id')
                 ?? DB::table('academic_years')->orderByDesc('year')->value('id');
 
             if ($activeYearId) {
-                DB::table('course_teacher')->whereNull('academic_year_id')->update(['academic_year_id' => $activeYearId]);
+                DB::table('teacher_assignments')->whereNull('academic_year_id')->update(['academic_year_id' => $activeYearId]);
             }
         }
+
+        Schema::dropIfExists('sections');
 
         Schema::table('payment_concepts', function (Blueprint $table) {
             if (! Schema::hasColumn('payment_concepts', 'description')) {

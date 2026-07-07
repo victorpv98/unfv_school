@@ -30,9 +30,9 @@ class EvaluationEligibilityService
                 $query->where(function ($subquery) use ($enrollments) {
                     foreach ($enrollments as $enrollment) {
                         $subquery->orWhere(function ($inner) use ($enrollment) {
-                            $inner->where('course_teacher.grade_id', $enrollment->grade_id)
-                                ->where('course_teacher.section_id', $enrollment->section_id)
-                                ->where('course_teacher.academic_year_id', $enrollment->academic_year_id);
+                            $inner->where('teacher_assignments.grade_id', $enrollment->grade_id)
+                                ->where('teacher_assignments.section', $enrollment->section)
+                                ->where('teacher_assignments.academic_year_id', $enrollment->academic_year_id);
                         });
                     }
                 });

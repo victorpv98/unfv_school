@@ -37,7 +37,7 @@ class EvaluationController extends Controller
 
         $period = $this->activePeriod();
         abort_if(! $period, 403, 'No hay periodo de evaluación activo.');
-        abort_unless(app(EvaluationEligibilityService::class)->canEvaluate(Auth::user(), $teacher), 403, 'No puedes evaluar a este profesor porque no está asignado a tu matrícula.');
+        abort_unless(app(EvaluationEligibilityService::class)->canEvaluate(Auth::user(), $teacher), 403, 'No puedes evaluar a este docente porque no está asignado a tu matrícula.');
 
         $type = $this->evaluatorType();
         $criteria = EvaluationCriterion::query()
@@ -50,7 +50,7 @@ class EvaluationController extends Controller
             ->get();
 
         abort_if($criteria->isEmpty(), 403, 'No hay criterios configurados para este tipo de evaluador.');
-        abort_if($this->alreadyEvaluated($period, $teacher), 403, 'Ya evaluaste a este profesor en el periodo activo.');
+        abort_if($this->alreadyEvaluated($period, $teacher), 403, 'Ya evaluaste a este docente en el periodo activo.');
 
         return view('evaluations.form', compact('period', 'teacher', 'criteria', 'type'));
     }
@@ -61,8 +61,8 @@ class EvaluationController extends Controller
 
         $period = $this->activePeriod();
         abort_if(! $period, 403, 'No hay periodo de evaluación activo.');
-        abort_unless(app(EvaluationEligibilityService::class)->canEvaluate(Auth::user(), $teacher), 403, 'No puedes evaluar a este profesor porque no está asignado a tu matrícula.');
-        abort_if($this->alreadyEvaluated($period, $teacher), 403, 'Ya evaluaste a este profesor en el periodo activo.');
+        abort_unless(app(EvaluationEligibilityService::class)->canEvaluate(Auth::user(), $teacher), 403, 'No puedes evaluar a este docente porque no está asignado a tu matrícula.');
+        abort_if($this->alreadyEvaluated($period, $teacher), 403, 'Ya evaluaste a este docente en el periodo activo.');
 
         $data = $request->validate([
             'scores' => ['required', 'array'],

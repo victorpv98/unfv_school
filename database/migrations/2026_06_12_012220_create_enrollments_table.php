@@ -18,12 +18,13 @@ return new class extends Migration
             $table->foreignId('academic_year_id')->constrained()->cascadeOnDelete();
             $table->foreignId('level_id')->constrained()->cascadeOnDelete();
             $table->foreignId('grade_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('section_id')->constrained()->cascadeOnDelete();
+            $table->string('section', 1);
             $table->date('enrolled_at');
             $table->string('status', 30)->default('matriculado');
             $table->text('observations')->nullable();
             $table->timestamps();
             $table->unique(['student_id', 'academic_year_id']);
+            $table->index(['academic_year_id', 'grade_id', 'section']);
         });
     }
 

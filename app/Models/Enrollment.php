@@ -18,5 +18,4 @@ class Enrollment extends Model
     public function academicYear(): BelongsTo { return $this->belongsTo(AcademicYear::class); }
     public function level(): BelongsTo { return $this->belongsTo(Level::class); }
     public function grade(): BelongsTo { return $this->belongsTo(Grade::class); }
-    public function section(): BelongsTo { return $this->belongsTo(Section::class); }
 }

@@ -12,6 +12,6 @@ class Teacher extends Model
     protected $guarded = [];
 
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function courses(): BelongsToMany { return $this->belongsToMany(Course::class)->withPivot(['academic_year_id', 'grade_id', 'section_id'])->withTimestamps(); }
+    public function courses(): BelongsToMany { return $this->belongsToMany(Course::class, 'teacher_assignments')->withPivot(['academic_year_id', 'level_id', 'grade_id', 'section'])->withTimestamps(); }
     public function evaluations(): HasMany { return $this->hasMany(TeacherEvaluation::class); }
 }

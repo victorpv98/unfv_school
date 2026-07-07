@@ -6,7 +6,6 @@ use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\Guardian;
-use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +24,7 @@ class EnrollmentService
             $student = $this->resolveStudent($data);
             $guardian = $this->resolveGuardian($data);
             $this->syncGuardian($student, $guardian, $data);
-            $enrollment = $this->createEnrollment($student, $data);
+            $enrollment = $this->createEnrollment($student, $guardian, $data);
             $paymentsCreated = $this->paymentGenerationService->generateForEnrollment($enrollment);
 
             return compact('student', 'guardian', 'enrollment', 'paymentsCreated');
@@ -130,7 +129,7 @@ class EnrollmentService
         ]);
     }
 
-    private function createEnrollment(Student $student, array $data): Enrollment
+    private function createEnrollment(Student $student, Guardian $guardian, array $data): Enrollment
     {
         $academicYear = AcademicYear::firstOrCreate(
             ['year' => (int) $data['academic_year']],
@@ -144,17 +143,20 @@ class EnrollmentService
         }
 
         $grade = Grade::findOrFail($data['grade_id']);
-        $section = Section::firstOrCreate([
-            'grade_id' => $grade->id,
-            'name' => $data['section_name'],
-        ], ['status' => 'activo']);
+
+        if ((int) $grade->level_id !== (int) $data['level_id']) {
+            throw ValidationException::withMessages([
+                'grade_id' => 'El grado seleccionado no pertenece al nivel indicado.',
+            ]);
+        }
 
         return Enrollment::create([
             'student_id' => $student->id,
+            'guardian_id' => $guardian->id,
             'academic_year_id' => $academicYear->id,
             'level_id' => $data['level_id'],
             'grade_id' => $grade->id,
-            'section_id' => $section->id,
+            'section' => $data['section_name'],
             'enrolled_at' => $data['enrolled_at'],
             'status' => $data['enrollment_status'] ?? 'matriculado',
             'observations' => $data['observations'] ?? null,

@@ -4,9 +4,11 @@
             <h2 class="text-2xl font-bold text-[#123b7a]">Pagos</h2>
             <p class="text-slate-600">Mensualidades y matrícula asociadas a los alumnos.</p>
         </div>
-        @if(auth()->user()->hasRole('administrador'))
+        @if(auth()->user()->hasRole('administrador', 'secretaria'))
             <div class="flex flex-wrap gap-2">
-                <a class="rounded-md bg-slate-100 px-4 py-2 font-semibold hover:bg-slate-200" href="{{ route('resources.index', 'payment-concepts') }}">Configurar montos</a>
+                @if(auth()->user()->hasRole('administrador'))
+                    <a class="rounded-md bg-slate-100 px-4 py-2 font-semibold hover:bg-slate-200" href="{{ route('resources.index', 'payment-concepts') }}">Configurar montos</a>
+                @endif
                 <a class="school-button-primary rounded-md px-4 py-2 font-semibold" href="{{ route('resources.index', 'student-payments') }}">Registrar pagos</a>
             </div>
         @endif

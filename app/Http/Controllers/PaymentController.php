@@ -14,7 +14,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        $students = $user->hasRole('administrador')
+        $students = $user->hasRole('administrador', 'secretaria')
             ? Student::query()->with(['enrollments.academicYear', 'payments.paymentConcept'])->orderBy('last_names')->get()
             : Guardian::where('user_id', $user->id)->first()?->students()
                 ->with(['enrollments.academicYear', 'payments.paymentConcept'])

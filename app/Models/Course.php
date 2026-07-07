@@ -12,5 +12,5 @@ class Course extends Model
 
     public function level(): BelongsTo { return $this->belongsTo(Level::class); }
     public function grade(): BelongsTo { return $this->belongsTo(Grade::class); }
-    public function teachers(): BelongsToMany { return $this->belongsToMany(Teacher::class)->withPivot(['academic_year_id', 'grade_id', 'section_id'])->withTimestamps(); }
+    public function teachers(): BelongsToMany { return $this->belongsToMany(Teacher::class, 'teacher_assignments')->withPivot(['academic_year_id', 'level_id', 'grade_id', 'section'])->withTimestamps(); }
 }

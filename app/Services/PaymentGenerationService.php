@@ -26,6 +26,9 @@ class PaymentGenerationService
             ], [
                 'enrollment_id' => $enrollment->id,
                 'amount' => $concept->amount,
+                'original_amount' => $concept->amount,
+                'late_fee_amount' => 0,
+                'total_amount' => $concept->amount,
                 'amount_paid' => 0,
                 'status' => 'pendiente',
                 'due_date' => $concept->due_date,

@@ -15,8 +15,11 @@
                 @php($type = $field['type'] ?? 'text')
                 @php($fieldValue = old($name, $item ? (isset($field['value']) ? $field['value']($item) : $item?->{$name}) : null))
                 <div class="{{ in_array($type, ['textarea', 'multiselect'], true) ? 'md:col-span-2' : '' }}">
-                    <label class="text-sm font-medium text-[#123b7a]">{{ $field['label'] }}</label>
-                    @if($type === 'select')
+	                    <label class="text-sm font-medium text-[#123b7a]">{{ $field['label'] }}</label>
+	                    @isset($field['help'])
+	                        <p class="mt-1 text-xs text-slate-500">{{ $field['help'] }}</p>
+	                    @endisset
+	                    @if($type === 'select')
                         <select class="mt-1 w-full rounded-md px-3 py-2" name="{{ $name }}">
                             <option value="">Seleccione</option>
                             @foreach($options[$name] ?? [] as $value => $label)

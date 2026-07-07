@@ -9,17 +9,18 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherAssignmentService
 {
-    public function assign(Teacher $teacher, Course $course, int $academicYearId, int $gradeId, int $sectionId): void
+    public function assign(Teacher $teacher, Course $course, int $academicYearId, int $levelId, int $gradeId, string $section): void
     {
         AcademicYear::findOrFail($academicYearId);
 
-        DB::table('course_teacher')->updateOrInsert(
+        DB::table('teacher_assignments')->updateOrInsert(
             [
                 'academic_year_id' => $academicYearId,
                 'course_id' => $course->id,
                 'teacher_id' => $teacher->id,
+                'level_id' => $levelId,
                 'grade_id' => $gradeId,
-                'section_id' => $sectionId,
+                'section' => $section,
             ],
             [
                 'updated_at' => now(),

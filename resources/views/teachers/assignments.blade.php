@@ -1,7 +1,7 @@
 <x-layouts.app title="Asignación docente">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-[#123b7a]">Asignación docente</h2>
-        <p class="text-slate-600">Asocia profesores con cursos, grados y secciones por año académico.</p>
+        <p class="text-slate-600">Asocia docentes con cursos, grados y secciones por año escolar.</p>
     </div>
 
     @if($errors->any())
@@ -19,7 +19,7 @@
         @csrf
         <div class="grid gap-4 md:grid-cols-3">
             <div>
-                <label class="text-sm font-medium text-[#123b7a]">Año académico</label>
+                <label class="text-sm font-medium text-[#123b7a]">Año escolar</label>
                 <select class="mt-1 w-full rounded-md px-3 py-2" name="academic_year_id" required>
                     <option value="">Seleccione</option>
                     @foreach($academicYears as $year)
@@ -28,7 +28,7 @@
                 </select>
             </div>
             <div>
-                <label class="text-sm font-medium text-[#123b7a]">Profesor</label>
+                <label class="text-sm font-medium text-[#123b7a]">Docente</label>
                 <select class="mt-1 w-full rounded-md px-3 py-2" name="teacher_id" required>
                     <option value="">Seleccione</option>
                     @foreach($teachers as $teacher)
@@ -56,10 +56,10 @@
             </div>
             <div>
                 <label class="text-sm font-medium text-[#123b7a]">Sección</label>
-                <select class="mt-1 w-full rounded-md px-3 py-2" name="section_id" required>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="section" required>
                     <option value="">Seleccione</option>
                     @foreach($sections as $section)
-                        <option value="{{ $section->id }}">{{ $section->grade->level->name }} - {{ $section->grade->name }} {{ $section->name }}</option>
+                        <option value="{{ $section }}">{{ $section }}</option>
                     @endforeach
                 </select>
             </div>
@@ -74,7 +74,7 @@
             <thead class="bg-slate-50 text-slate-600">
                 <tr>
                     <th class="p-3">Año</th>
-                    <th class="p-3">Profesor</th>
+                    <th class="p-3">Docente</th>
                     <th class="p-3">Curso</th>
                     <th class="p-3">Nivel</th>
                     <th class="p-3">Grado</th>
@@ -89,7 +89,7 @@
                         <td class="p-3">{{ $assignment->course_name }}</td>
                         <td class="p-3">{{ $assignment->level_name }}</td>
                         <td class="p-3">{{ $assignment->grade_name }}</td>
-                        <td class="p-3">{{ $assignment->section_name }}</td>
+                        <td class="p-3">{{ $assignment->section }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="p-4 text-slate-500">No hay asignaciones registradas.</td></tr>

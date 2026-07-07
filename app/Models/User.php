@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -17,9 +18,8 @@ class User extends Authenticatable
 
     public const ROLES = [
         'administrador' => 'Administrador',
-        'director' => 'Director',
         'secretaria' => 'Secretaría',
-        'profesor' => 'Profesor',
+        'docente' => 'Docente',
         'alumno' => 'Alumno',
         'apoderado' => 'Apoderado',
     ];
@@ -61,5 +61,10 @@ class User extends Authenticatable
     public function getRoleLabelAttribute(): string
     {
         return self::ROLES[$this->role] ?? 'Usuario';
+    }
+
+    public function announcementRecipients(): HasMany
+    {
+        return $this->hasMany(AnnouncementRecipient::class);
     }
 }

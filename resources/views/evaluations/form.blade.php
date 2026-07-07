@@ -1,4 +1,4 @@
-<x-layouts.app title="Evaluar profesor">
+<x-layouts.app title="Evaluar docente">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-[#123b7a]">Evaluar a {{ $teacher->first_names }} {{ $teacher->last_names }}</h2>
         <p class="text-slate-600">Tipo de evaluación: {{ ucfirst($type) }}. Escala: 1 muy bajo, 5 excelente.</p>

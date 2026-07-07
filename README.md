@@ -1,58 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# UNFV School
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web de gestion escolar desarrollado en Laravel para administrar alumnos, apoderados, docentes, matriculas, pagos, moras, comunicados y evaluaciones docentes.
 
-## About Laravel
+El proyecto esta orientado a una institucion de nivel Inicial y Primaria, con secciones simples `A`, `B` y `C`, roles diferenciados y flujos administrativos para secretaria y administracion.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Estado Actual
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Framework: Laravel 13.
+- PHP requerido: 8.3 o superior.
+- Frontend: Blade, Tailwind CSS y Vite.
+- Base de datos: compatible con PostgreSQL y SQLite para pruebas.
+- Pruebas: PHPUnit con base SQLite en memoria.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Modulos Principales
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Autenticacion por roles: administrador, secretaria, docente, alumno y apoderado.
+- Dashboard con indicadores generales.
+- Gestion de usuarios.
+- Gestion de alumnos, apoderados y docentes.
+- Matriculas por anio academico, nivel, grado y seccion.
+- Asignacion docente por curso, grado, seccion y anio academico.
+- Conceptos de pago para matricula y mensualidades.
+- Pagos de alumnos con monto tomado automaticamente desde el concepto de pago.
+- Configuracion y aplicacion de moras.
+- Bloqueo/desbloqueo de derecho a examen segun pagos vencidos.
+- Comunicados generales, academicos, de pagos y de mora.
+- Evaluacion de docentes por alumnos y apoderados.
+- Reportes para administracion y docentes.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Roles y Accesos
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+El seeder crea usuarios demo con la clave `password`:
 
-## Agentic Development
+| Rol | Email |
+| --- | --- |
+| Administrador | `admin@school.test` |
+| Secretaria | `secretaria@school.test` |
+| Alumno | `alumno@school.test` |
+| Apoderado | `apoderado@school.test` |
+| Docente | `docente@school.test` |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalacion
+
+1. Instalar dependencias PHP:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Instalar dependencias frontend:
 
-## Contributing
+```bash
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. Crear archivo de entorno:
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Configurar PostgreSQL en `.env`.
 
-## Security Vulnerabilities
+El proyecto esta preparado principalmente para PostgreSQL:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=unfv_school
+DB_USERNAME=postgres
+DB_PASSWORD=
+```
 
-## License
+Ajusta `DB_USERNAME` y `DB_PASSWORD` segun tu instalacion local. SQLite se usa solo para pruebas automatizadas en memoria mediante `phpunit.xml`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. Ejecutar migraciones y seeders:
+
+```bash
+php artisan migrate --seed
+```
+
+6. Compilar assets:
+
+```bash
+npm run build
+```
+
+7. Levantar el servidor:
+
+```bash
+php artisan serve
+```
+
+Tambien puedes usar el script de desarrollo:
+
+```bash
+composer run dev
+```
+
+## Comandos Utiles
+
+Ejecutar pruebas:
+
+```bash
+php artisan test
+```
+
+Aplicar moras manualmente:
+
+```bash
+php artisan payments:apply-late-fees
+```
+
+Ejecutar el scheduler de Laravel:
+
+```bash
+php artisan schedule:work
+```
+
+El scheduler ejecuta diariamente el comando `payments:apply-late-fees`.
+
+## Base de Datos
+
+Tablas principales:
+
+- `users`: cuentas y roles del sistema.
+- `academic_years`: anios academicos.
+- `levels`: niveles escolares.
+- `grades`: grados por nivel.
+- `courses`: cursos.
+- `students`: alumnos.
+- `guardians`: apoderados.
+- `student_guardian`: relacion alumno-apoderado.
+- `teachers`: docentes.
+- `enrollments`: matriculas por anio, grado y seccion.
+- `teacher_assignments`: asignaciones de docentes.
+- `payment_concepts`: conceptos de pago.
+- `student_payments`: pagos generados o registrados para alumnos.
+- `late_fee_settings`: reglas de mora.
+- `announcements`: comunicados.
+- `announcement_recipients`: destinatarios y lectura de comunicados.
+- `evaluation_periods`: periodos de evaluacion.
+- `evaluation_criteria`: criterios de evaluacion.
+- `teacher_evaluations`: evaluaciones docentes.
+- `evaluation_details`: detalle de puntajes.
+
+
+## Flujo de Pagos
+
+1. Administracion crea conceptos de pago en `Conceptos de pago`.
+2. Cada concepto define tipo, nombre, monto, mes y fecha de vencimiento.
+3. Al registrar una mensualidad/pago para un alumno, se selecciona el concepto.
+4. El sistema toma automaticamente el monto y vencimiento desde `payment_concepts`.
+5. El campo `Monto pagado` se usa solo para registrar abonos o pagos completos.
+6. Las moras se aplican segun `late_fee_settings`.
+7. Si corresponde, el sistema bloquea derecho a examen y genera comunicado de mora.
+
+## Pruebas
+
+La suite actual cubre:
+
+- Accesos por rol.
+- Matricula y generacion de pagos.
+- Gestion de conceptos de pago.
+- Visualizacion de pagos por apoderado.
+- Registro de pagos sin monto manual.
+- Aplicacion de moras.
+- Generacion de comunicados de mora.
+- Evaluacion docente.
+
+Ultima verificacion ejecutada:
+
+```bash
+php artisan test
+```
+
+Resultado esperado actual: 23 pruebas aprobadas.
+
+## Notas de Desarrollo
+
+- El layout principal esta en `resources/views/components/layouts/app.blade.php`.
+- La configuracion de recursos CRUD esta en `config/school.php`.
+- Los servicios de negocio estan en `app/Services`.
+- Las rutas web estan en `routes/web.php`.
+- Las tareas programadas y comandos artisan estan en `routes/console.php`.

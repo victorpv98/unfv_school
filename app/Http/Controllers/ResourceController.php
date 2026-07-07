@@ -151,15 +151,14 @@ class ResourceController extends Controller
         }
 
         if (($config['model'] ?? null) === \App\Models\Enrollment::class && array_key_exists('section_name', $data)) {
-            $section = \App\Models\Section::firstOrCreate(
-                [
-                    'grade_id' => (int) $data['grade_id'],
-                    'name' => $data['section_name'],
-                ],
-                ['status' => 'activo']
-            );
+            $grade = \App\Models\Grade::findOrFail($data['grade_id']);
+            if ((int) $grade->level_id !== (int) $data['level_id']) {
+                throw ValidationException::withMessages([
+                    'grade_id' => 'El grado seleccionado no pertenece al nivel indicado.',
+                ]);
+            }
 
-            $data['section_id'] = $section->id;
+            $data['section'] = $data['section_name'];
             unset($data['section_name']);
         }
 
@@ -192,11 +191,25 @@ class ResourceController extends Controller
             }
         }
 
-        if (($config['model'] ?? null) === \App\Models\StudentPayment::class) {
-            if (($data['status'] ?? null) === 'pagado') {
-                $data['amount_paid'] = $data['amount_paid'] ?: $data['amount'];
+	        if (($config['model'] ?? null) === \App\Models\StudentPayment::class) {
+	            $concept = \App\Models\PaymentConcept::findOrFail($data['payment_concept_id']);
+	            $sameConcept = $item && (int) $item->payment_concept_id === (int) $concept->id;
+	            $baseAmount = $sameConcept ? (float) ($item->amount ?: $concept->amount) : (float) $concept->amount;
+	            $lateFeeAmount = $sameConcept ? (float) ($item->late_fee_amount ?? 0) : 0.0;
+
+	            $data['amount'] = $baseAmount;
+	            $data['original_amount'] = $sameConcept ? (float) ($item->original_amount ?: $baseAmount) : $baseAmount;
+	            $data['late_fee_amount'] = $lateFeeAmount;
+	            $data['total_amount'] = round((float) $data['original_amount'] + $lateFeeAmount, 2);
+	            $data['amount_paid'] = blank($data['amount_paid'] ?? null) ? 0 : $data['amount_paid'];
+	            $data['due_date'] = $data['due_date'] ?? $concept->due_date?->toDateString();
+
+	            if (($data['status'] ?? null) === 'pagado') {
+	                $data['amount_paid'] = $data['amount_paid'] ?: ($data['total_amount'] ?? $data['amount']);
                 $data['paid_at'] = $data['paid_at'] ?? now()->toDateString();
                 $data['registered_by'] = Auth::id();
+                $data['exam_blocked'] = false;
+                $data['exam_unblocked_at'] = now();
             }
 
             if (($data['status'] ?? null) === 'parcial' && (float) ($data['amount_paid'] ?? 0) <= 0) {
@@ -214,7 +227,7 @@ class ResourceController extends Controller
         $roleByModel = [
             \App\Models\Student::class => 'alumno',
             \App\Models\Guardian::class => 'apoderado',
-            \App\Models\Teacher::class => 'profesor',
+            \App\Models\Teacher::class => 'docente',
         ];
 
         $model = $config['model'] ?? null;
@@ -265,7 +278,11 @@ class ResourceController extends Controller
                 return [$id => $pivot];
             })->all();
 
-            $item->{$field['relation']}()->sync($syncData);
+        $item->{$field['relation']}()->sync($syncData);
+        }
+
+        if ($item instanceof \App\Models\StudentPayment) {
+            app(\App\Services\PaymentLateFeeService::class)->reconcilePayment($item->fresh());
         }
     }
 
@@ -320,11 +337,7 @@ class ResourceController extends Controller
             return;
         }
 
-        if (! $write && $user->hasRole('director')) {
-            return;
-        }
-
-        if ($user->hasRole('secretaria') && in_array($resource, ['students', 'guardians', 'teachers', 'enrollments'], true)) {
+        if ($user->hasRole('secretaria') && in_array($resource, ['students', 'guardians', 'teachers', 'enrollments', 'student-payments'], true)) {
             return;
         }
 

@@ -62,7 +62,7 @@ class EnrollmentWizardController extends Controller
         ]);
 
         $result = $enrollmentService->createFromWizard($data);
-        $enrollment = $result['enrollment']->load(['academicYear', 'level', 'grade', 'section']);
+        $enrollment = $result['enrollment']->load(['academicYear', 'level', 'grade']);
 
         return redirect()
             ->route('enrollments.wizard.create')
@@ -70,7 +70,7 @@ class EnrollmentWizardController extends Controller
             ->with('enrollment_summary', [
                 'student' => $result['student']->first_names.' '.$result['student']->last_names,
                 'guardian' => $result['guardian']->first_names.' '.$result['guardian']->last_names,
-                'academic' => $enrollment->academicYear->year.' - '.$enrollment->level->name.' - '.$enrollment->grade->name.' '.$enrollment->section->name,
+                'academic' => $enrollment->academicYear->year.' - '.$enrollment->level->name.' - '.$enrollment->grade->name.' '.$enrollment->section,
                 'payments_created' => $result['paymentsCreated'],
             ]);
     }

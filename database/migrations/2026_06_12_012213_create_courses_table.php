@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('level_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('grade_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('grade_id')->nullable()->constrained()->nullOnDelete();
             $table->string('code')->unique();
             $table->string('name');
             $table->string('status', 30)->default('activo');

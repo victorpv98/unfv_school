@@ -9,7 +9,6 @@ use App\Models\Grade;
 use App\Models\Guardian;
 use App\Models\Level;
 use App\Models\PaymentConcept;
-use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentPayment;
 use App\Models\Teacher;
@@ -32,12 +31,48 @@ $months = [
 
 return [
     'resources' => [
+        'academic-years' => [
+            'label' => 'Años escolares',
+            'model' => AcademicYear::class,
+            'columns' => ['year', 'starts_at', 'ends_at', 'status'],
+            'fields' => [
+                'year' => ['label' => 'Año', 'type' => 'number', 'rules' => ['required', 'integer', 'min:2000', 'max:2100']],
+                'starts_at' => ['label' => 'Inicio', 'type' => 'date', 'rules' => ['nullable', 'date']],
+                'ends_at' => ['label' => 'Fin', 'type' => 'date', 'rules' => ['nullable', 'date']],
+                'status' => ['label' => 'Estado', 'type' => 'select', 'options' => ['activo' => 'Activo', 'cerrado' => 'Cerrado', 'inactivo' => 'Inactivo']],
+            ],
+        ],
+        'levels' => [
+            'label' => 'Niveles',
+            'model' => Level::class,
+            'columns' => ['name', 'status'],
+            'fields' => [
+                'name' => ['label' => 'Nombre', 'type' => 'select', 'options' => ['Inicial' => 'Inicial', 'Primaria' => 'Primaria'], 'rules' => ['required', 'in:Inicial,Primaria']],
+                'status' => ['label' => 'Estado', 'type' => 'select', 'options' => $status],
+            ],
+        ],
+        'grades' => [
+            'label' => 'Grados',
+            'model' => Grade::class,
+            'with' => ['level'],
+            'columns' => ['level_id', 'name', 'sort_order', 'status'],
+            'column_labels' => ['level_id' => 'Nivel', 'sort_order' => 'Orden'],
+            'column_values' => [
+                'level_id' => fn (Grade $grade) => $grade->level?->name,
+            ],
+            'fields' => [
+                'level_id' => ['label' => 'Nivel', 'type' => 'select', 'model' => Level::class, 'display' => 'name', 'rules' => ['required', 'exists:levels,id']],
+                'name' => ['label' => 'Grado', 'rules' => ['required', 'max:255']],
+                'sort_order' => ['label' => 'Orden', 'type' => 'number', 'rules' => ['nullable', 'integer', 'min:0']],
+                'status' => ['label' => 'Estado', 'type' => 'select', 'options' => $status],
+            ],
+        ],
         'users' => [
             'label' => 'Usuarios',
             'model' => User::class,
             'columns' => ['name', 'email', 'role', 'is_active'],
             'fields' => [
-                'role' => ['label' => 'Rol', 'type' => 'select', 'options' => User::ROLES, 'rules' => ['required', 'in:administrador,director,secretaria,profesor,alumno,apoderado']],
+                'role' => ['label' => 'Rol', 'type' => 'select', 'options' => User::ROLES, 'rules' => ['required', 'in:administrador,secretaria,docente,alumno,apoderado']],
                 'name' => ['label' => 'Nombre', 'rules' => ['required', 'max:255']],
                 'email' => ['label' => 'Correo', 'type' => 'email', 'rules' => ['required', 'email', 'max:255']],
                 'password' => ['label' => 'Contraseña', 'type' => 'password', 'rules' => ['nullable', 'min:6']],
@@ -120,7 +155,7 @@ return [
             ],
         ],
         'teachers' => [
-            'label' => 'Profesores',
+            'label' => 'Docentes',
             'model' => Teacher::class,
             'columns' => ['code', 'first_names', 'last_names', 'dni', 'specialty', 'status'],
             'fields' => [
@@ -144,7 +179,7 @@ return [
             'columns' => ['code', 'name', 'level_id', 'grade_id', 'status'],
             'fields' => [
                 'level_id' => ['label' => 'Nivel', 'type' => 'select', 'model' => Level::class, 'display' => 'name', 'rules' => ['required', 'exists:levels,id']],
-                'grade_id' => ['label' => 'Grado', 'type' => 'select', 'model' => Grade::class, 'with' => ['level'], 'display' => fn (Grade $grade) => "{$grade->level->name} - {$grade->name}", 'rules' => ['required', 'exists:grades,id']],
+                'grade_id' => ['label' => 'Grado', 'type' => 'select', 'model' => Grade::class, 'with' => ['level'], 'display' => fn (Grade $grade) => "{$grade->level->name} - {$grade->name}", 'rules' => ['nullable', 'exists:grades,id']],
                 'code' => ['label' => 'Código', 'rules' => ['required', 'max:255']],
                 'name' => ['label' => 'Nombre', 'rules' => ['required', 'max:255']],
                 'status' => ['label' => 'Estado', 'type' => 'select', 'options' => $status],
@@ -153,28 +188,28 @@ return [
         'enrollments' => [
             'label' => 'Matrículas',
             'model' => Enrollment::class,
-            'with' => ['student', 'academicYear', 'level', 'grade', 'section'],
-            'columns' => ['student_id', 'academic_year_id', 'level_id', 'grade_id', 'section_id', 'status'],
+            'with' => ['student', 'academicYear', 'level', 'grade'],
+            'columns' => ['student_id', 'academic_year_id', 'level_id', 'grade_id', 'section', 'status'],
             'column_labels' => [
                 'student_id' => 'Alumno',
                 'academic_year_id' => 'Año académico',
                 'level_id' => 'Nivel',
                 'grade_id' => 'Grado',
-                'section_id' => 'Sección',
+                'section' => 'Sección',
             ],
             'column_values' => [
                 'student_id' => fn (Enrollment $enrollment) => $enrollment->student ? "{$enrollment->student->code} - {$enrollment->student->first_names} {$enrollment->student->last_names}" : '',
                 'academic_year_id' => fn (Enrollment $enrollment) => $enrollment->academicYear?->year,
                 'level_id' => fn (Enrollment $enrollment) => $enrollment->level?->name,
                 'grade_id' => fn (Enrollment $enrollment) => $enrollment->grade?->name,
-                'section_id' => fn (Enrollment $enrollment) => $enrollment->section?->name,
+                'section' => fn (Enrollment $enrollment) => $enrollment->section,
             ],
             'fields' => [
                 'student_id' => ['label' => 'Alumno', 'type' => 'select', 'model' => Student::class, 'display' => fn ($s) => "{$s->code} - {$s->first_names} {$s->last_names}", 'rules' => ['required', 'exists:students,id']],
                 'academic_year' => ['label' => 'Año académico', 'type' => 'number', 'value' => fn (Enrollment $enrollment) => $enrollment->academicYear?->year, 'rules' => ['required', 'integer', 'min:2000', 'max:2100']],
                 'level_id' => ['label' => 'Nivel', 'type' => 'select', 'model' => Level::class, 'display' => 'name', 'rules' => ['required', 'exists:levels,id']],
                 'grade_id' => ['label' => 'Grado', 'type' => 'select', 'model' => Grade::class, 'with' => ['level'], 'display' => fn (Grade $grade) => "{$grade->level->name} - {$grade->name}", 'rules' => ['required', 'exists:grades,id']],
-                'section_name' => ['label' => 'Sección', 'type' => 'select', 'options' => ['A' => 'A', 'B' => 'B', 'C' => 'C'], 'value' => fn (Enrollment $enrollment) => $enrollment->section?->name, 'rules' => ['required', 'in:A,B,C']],
+                'section_name' => ['label' => 'Sección', 'type' => 'select', 'options' => ['A' => 'A', 'B' => 'B', 'C' => 'C'], 'value' => fn (Enrollment $enrollment) => $enrollment->section, 'rules' => ['required', 'in:A,B,C']],
                 'enrolled_at' => ['label' => 'Fecha de matrícula', 'type' => 'date', 'rules' => ['required', 'date']],
                 'status' => ['label' => 'Estado', 'type' => 'select', 'options' => ['pendiente' => 'Pendiente', 'matriculado' => 'Matriculado', 'observado' => 'Observado', 'anulado' => 'Anulado', 'retirado' => 'Retirado']],
                 'observations' => ['label' => 'Observaciones', 'type' => 'textarea'],
@@ -210,14 +245,16 @@ return [
             ],
         ],
         'student-payments' => [
-            'label' => 'Pagos de alumnos',
+            'label' => 'Mensualidades',
             'model' => StudentPayment::class,
             'with' => ['student', 'paymentConcept'],
-            'columns' => ['student_id', 'payment_concept_id', 'amount', 'amount_paid', 'status', 'due_date', 'paid_at', 'receipt_number'],
+            'columns' => ['student_id', 'payment_concept_id', 'amount', 'late_fee_amount', 'total_amount', 'amount_paid', 'status', 'due_date', 'paid_at', 'receipt_number'],
             'column_labels' => [
                 'student_id' => 'Alumno',
                 'payment_concept_id' => 'Concepto',
                 'amount' => 'Monto',
+                'late_fee_amount' => 'Mora',
+                'total_amount' => 'Total',
                 'amount_paid' => 'Pagado',
                 'due_date' => 'Vencimiento',
                 'paid_at' => 'Fecha pago',
@@ -227,19 +264,27 @@ return [
                 'student_id' => fn (StudentPayment $payment) => $payment->student ? "{$payment->student->code} - {$payment->student->first_names} {$payment->student->last_names}" : '',
                 'payment_concept_id' => fn (StudentPayment $payment) => $payment->paymentConcept?->name,
                 'amount' => fn (StudentPayment $payment) => 'S/ '.number_format((float) $payment->amount, 2),
+                'late_fee_amount' => fn (StudentPayment $payment) => 'S/ '.number_format((float) $payment->late_fee_amount, 2),
+                'total_amount' => fn (StudentPayment $payment) => 'S/ '.number_format((float) ($payment->total_amount ?: $payment->amount), 2),
                 'amount_paid' => fn (StudentPayment $payment) => 'S/ '.number_format((float) $payment->amount_paid, 2),
                 'due_date' => fn (StudentPayment $payment) => $payment->due_date?->format('d/m/Y') ?? '-',
                 'paid_at' => fn (StudentPayment $payment) => $payment->paid_at?->format('d/m/Y') ?? '-',
             ],
             'fields' => [
                 'student_id' => ['label' => 'Alumno', 'type' => 'select', 'model' => Student::class, 'display' => fn (Student $student) => "{$student->code} - {$student->first_names} {$student->last_names}", 'rules' => ['required', 'exists:students,id']],
-                'payment_concept_id' => ['label' => 'Concepto', 'type' => 'select', 'model' => PaymentConcept::class, 'display' => 'name', 'rules' => ['required', 'exists:payment_concepts,id']],
-                'amount' => ['label' => 'Monto', 'type' => 'number', 'step' => '0.01', 'rules' => ['required', 'numeric', 'min:0']],
-                'amount_paid' => ['label' => 'Monto pagado', 'type' => 'number', 'step' => '0.01', 'rules' => ['required', 'numeric', 'min:0']],
+                'payment_concept_id' => [
+                    'label' => 'Concepto',
+                    'type' => 'select',
+                    'model' => PaymentConcept::class,
+                    'display' => fn (PaymentConcept $concept) => $concept->name.' - S/ '.number_format((float) $concept->amount, 2),
+                    'rules' => ['required', 'exists:payment_concepts,id'],
+                    'help' => 'El monto y vencimiento se toman automáticamente del concepto seleccionado.',
+                ],
+                'amount_paid' => ['label' => 'Monto pagado', 'type' => 'number', 'step' => '0.01', 'rules' => ['nullable', 'numeric', 'min:0'], 'help' => 'Déjalo vacío si el pago todavía está pendiente.'],
                 'status' => ['label' => 'Estado', 'type' => 'select', 'options' => ['pendiente' => 'Pendiente', 'parcial' => 'Parcial', 'pagado' => 'Pagado', 'vencido' => 'Vencido', 'anulado' => 'Anulado'], 'rules' => ['required', 'in:pendiente,parcial,pagado,vencido,anulado']],
                 'due_date' => ['label' => 'Vencimiento', 'type' => 'date', 'rules' => ['nullable', 'date']],
                 'paid_at' => ['label' => 'Fecha de pago', 'type' => 'date', 'rules' => ['nullable', 'date']],
-                'payment_method' => ['label' => 'Método de pago'],
+                'payment_method' => ['label' => 'Método de pago', 'type' => 'select', 'options' => ['efectivo' => 'Efectivo', 'transferencia' => 'Transferencia', 'yape' => 'Yape', 'plin' => 'Plin', 'tarjeta' => 'Tarjeta', 'otro' => 'Otro']],
                 'receipt_number' => ['label' => 'Número de recibo'],
                 'observations' => ['label' => 'Observaciones', 'type' => 'textarea'],
             ],

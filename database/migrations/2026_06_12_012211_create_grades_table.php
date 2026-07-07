@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('level_id')->constrained()->cascadeOnDelete();
             $table->string('name');
+            $table->unsignedSmallInteger('sort_order')->default(0);
             $table->string('status', 30)->default('activo');
             $table->timestamps();
             $table->unique(['level_id', 'name']);

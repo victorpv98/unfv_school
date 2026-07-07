@@ -8,10 +8,13 @@ use App\Models\EvaluationCriterion;
 use App\Models\EvaluationPeriod;
 use App\Models\Grade;
 use App\Models\Guardian;
+use App\Models\Announcement;
+use App\Models\AnnouncementRecipient;
+use App\Models\LateFeeSetting;
 use App\Models\Level;
 use App\Models\PaymentConcept;
-use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentPayment;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -26,6 +29,11 @@ class DatabaseSeeder extends Seeder
             ['role' => 'administrador', 'name' => 'Administrador', 'password' => Hash::make('password'), 'is_active' => true]
         );
 
+        User::updateOrCreate(
+            ['email' => 'secretaria@school.test'],
+            ['role' => 'secretaria', 'name' => 'Secretaría Demo', 'password' => Hash::make('password'), 'is_active' => true]
+        );
+
         $studentUser = User::updateOrCreate(
             ['email' => 'alumno@school.test'],
             ['role' => 'alumno', 'name' => 'Alumno Demo', 'password' => Hash::make('password'), 'is_active' => true]
@@ -37,8 +45,8 @@ class DatabaseSeeder extends Seeder
         );
 
         $teacherUser = User::updateOrCreate(
-            ['email' => 'profesor@school.test'],
-            ['role' => 'profesor', 'name' => 'Profesor Demo', 'password' => Hash::make('password'), 'is_active' => true]
+            ['email' => 'docente@school.test'],
+            ['role' => 'docente', 'name' => 'Docente Demo', 'password' => Hash::make('password'), 'is_active' => true]
         );
 
         $year = AcademicYear::firstOrCreate(['year' => 2026], [
@@ -49,8 +57,7 @@ class DatabaseSeeder extends Seeder
 
         $academicStructure = [
             'Inicial' => ['3 años', '4 años', '5 años'],
-            'Primaria' => ['1.º', '2.º', '3.º', '4.º', '5.º', '6.º'],
-            'Secundaria' => ['1.º', '2.º', '3.º', '4.º', '5.º'],
+            'Primaria' => ['1° grado', '2° grado', '3° grado', '4° grado', '5° grado', '6° grado'],
         ];
 
         $catalog = [];
@@ -59,20 +66,15 @@ class DatabaseSeeder extends Seeder
             $level = Level::firstOrCreate(['name' => $levelName], ['status' => 'activo']);
             $catalog[$levelName]['level'] = $level;
 
-            foreach ($gradeNames as $gradeName) {
-                $grade = Grade::firstOrCreate(['level_id' => $level->id, 'name' => $gradeName], ['status' => 'activo']);
+            foreach ($gradeNames as $index => $gradeName) {
+                $grade = Grade::firstOrCreate(['level_id' => $level->id, 'name' => $gradeName], ['sort_order' => $index + 1, 'status' => 'activo']);
                 $catalog[$levelName]['grades'][$gradeName] = $grade;
-
-                foreach (['A', 'B', 'C'] as $sectionName) {
-                    $section = Section::firstOrCreate(['grade_id' => $grade->id, 'name' => $sectionName], ['status' => 'activo']);
-                    $catalog[$levelName]['sections'][$gradeName][$sectionName] = $section;
-                }
             }
         }
 
         $level = $catalog['Primaria']['level'];
-        $grade = $catalog['Primaria']['grades']['1.º'];
-        $section = $catalog['Primaria']['sections']['1.º']['A'];
+        $grade = $catalog['Primaria']['grades']['1° grado'];
+        $section = 'A';
 
         $student = Student::updateOrCreate(['code' => 'ALU-001'], [
             'user_id' => $studentUser->id,
@@ -122,12 +124,18 @@ class DatabaseSeeder extends Seeder
             'status' => 'activo',
         ]);
 
-        $course->teachers()->syncWithoutDetaching([$teacher->id => ['academic_year_id' => $year->id, 'grade_id' => $grade->id, 'section_id' => $section->id]]);
-
-        $student->enrollments()->firstOrCreate(['academic_year_id' => $year->id], [
+        $course->teachers()->syncWithoutDetaching([$teacher->id => [
+            'academic_year_id' => $year->id,
             'level_id' => $level->id,
             'grade_id' => $grade->id,
-            'section_id' => $section->id,
+            'section' => $section,
+        ]]);
+
+        $enrollment = $student->enrollments()->firstOrCreate(['academic_year_id' => $year->id], [
+            'guardian_id' => $guardian->id,
+            'level_id' => $level->id,
+            'grade_id' => $grade->id,
+            'section' => $section,
             'enrolled_at' => now()->toDateString(),
             'status' => 'matriculado',
         ]);
@@ -167,6 +175,57 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        PaymentConcept::where('academic_year_id', $year->id)
+            ->where('status', 'activo')
+            ->get()
+            ->each(function (PaymentConcept $concept) use ($student, $enrollment): void {
+                StudentPayment::firstOrCreate([
+                    'student_id' => $student->id,
+                    'payment_concept_id' => $concept->id,
+                ], [
+                    'enrollment_id' => $enrollment->id,
+                    'amount' => $concept->amount,
+                    'original_amount' => $concept->amount,
+                    'late_fee_amount' => 0,
+                    'total_amount' => $concept->amount,
+                    'amount_paid' => 0,
+                    'status' => 'pendiente',
+                    'due_date' => $concept->due_date,
+                ]);
+            });
+
+        LateFeeSetting::firstOrCreate([
+            'academic_year_id' => $year->id,
+            'status' => 'activo',
+        ], [
+            'name' => 'Mora 2026',
+            'grace_days' => 5,
+            'late_fee_percentage' => 5,
+            'blocks_exam_right' => true,
+            'auto_generate_notice' => true,
+            'notice_title' => 'Aviso de mora pendiente',
+            'notice_message' => 'Estimado apoderado, se informa que el alumno [NOMBRE_ALUMNO] mantiene una mensualidad vencida correspondiente a [CONCEPTO]. Se ha aplicado una comisión adicional del [PORCENTAJE_MORA]%. Total a pagar: S/ [TOTAL_A_PAGAR].',
+        ]);
+
+        $announcement = Announcement::firstOrCreate([
+            'title' => 'Bienvenida al año escolar 2026',
+            'target_type' => 'all_users',
+        ], [
+            'message' => 'Bienvenidos al sistema de comunicados de la IEP San Genaro.',
+            'type' => 'general',
+            'priority' => 'normal',
+            'status' => 'published',
+            'publish_at' => now(),
+            'created_by' => User::where('email', 'admin@school.test')->value('id'),
+        ]);
+
+        User::where('is_active', true)->get()->each(function (User $user) use ($announcement): void {
+            AnnouncementRecipient::firstOrCreate([
+                'announcement_id' => $announcement->id,
+                'user_id' => $user->id,
+            ], ['delivered_at' => now()]);
+        });
+
         $period = EvaluationPeriod::firstOrCreate(['name' => 'Evaluación Demo 2026'], [
             'starts_at' => now()->subDay()->toDateString(),
             'ends_at' => now()->addMonth()->toDateString(),
@@ -174,7 +233,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         foreach ([
-            ['alumno', 'Explicación clara', 'El profesor explica de manera entendible'],
+            ['alumno', 'Explicación clara', 'El docente explica de manera entendible'],
             ['alumno', 'Trato respetuoso', 'Trata con respeto a los estudiantes'],
             ['alumno', 'Puntualidad', 'Cumple con el horario de clase'],
             ['apoderado', 'Comunicación con la familia', 'Informa sobre avances o dificultades del estudiante'],

@@ -1,6 +1,6 @@
-<x-layouts.app title="Evaluación docente">
+<x-layouts.app title="Calificar docentes">
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-[#123b7a]">Evaluación docente</h2>
+        <h2 class="text-2xl font-bold text-[#123b7a]">Calificar docentes</h2>
         @if($period)
             <p class="text-slate-600">Periodo activo: {{ $period->name }} ({{ $period->starts_at->format('d/m/Y') }} - {{ $period->ends_at->format('d/m/Y') }})</p>
         @else
