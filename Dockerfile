@@ -25,7 +25,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN a2enmod rewrite headers expires
+RUN a2dismod mpm_event mpm_worker >/dev/null 2>&1 || true \
+    && a2enmod mpm_prefork rewrite headers expires
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1

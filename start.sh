@@ -71,6 +71,8 @@ echo "Configuring Apache to listen on ${PORT} and ServerName ${APP_HOST} ..."
 echo "ServerName ${APP_HOST}" > /etc/apache2/conf-available/servername.conf || true
 a2enconf servername >/dev/null 2>&1 || true
 
+a2dismod mpm_event mpm_worker >/dev/null 2>&1 || true
+a2enmod mpm_prefork >/dev/null 2>&1 || true
 a2enmod rewrite >/dev/null 2>&1 || true
 a2enmod headers >/dev/null 2>&1 || true
 a2enmod expires >/dev/null 2>&1 || true
