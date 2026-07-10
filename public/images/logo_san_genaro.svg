@@ -1,5 +1,5 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">IEP San Genaro</title>
+  <title id="title">IEP Sagrado Corazón</title>
   <desc id="desc">Escudo institucional simplificado con colores azul, amarillo, verde y naranja.</desc>
   <rect width="512" height="512" rx="96" fill="#FFFEF2"/>
   <path d="M96 286C61 246 48 196 55 145C83 178 91 214 79 253C98 231 123 215 153 207C151 245 132 272 96 286Z" fill="#078B2F"/>
@@ -15,7 +15,7 @@
   <text x="256" y="284" text-anchor="middle" font-size="106" font-family="Georgia, serif" font-weight="700" fill="#FFFEF2">SC</text>
   <path d="M256 326C244 308 217 313 216 339C215 367 256 384 256 384C256 384 297 367 296 339C295 313 268 308 256 326Z" fill="#E94A1A"/>
   <path d="M229 332C246 321 266 321 283 332" stroke="#078B2F" stroke-width="9" stroke-linecap="round"/>
-  <text x="256" y="357" text-anchor="middle" font-size="34" font-family="Arial, sans-serif" font-weight="700" fill="#FFFEF2" transform="rotate(0 256 357)">San Genaro</text>
+  <text x="256" y="357" text-anchor="middle" font-size="25" font-family="Arial, sans-serif" font-weight="700" fill="#FFFEF2" transform="rotate(0 256 357)">Sagrado Corazón</text>
   <path d="M184 430C214 416 236 418 256 438C276 418 298 416 328 430" stroke="#E94A1A" stroke-width="18" stroke-linecap="round"/>
   <path d="M208 449L166 486M304 449L346 486" stroke="#E94A1A" stroke-width="16" stroke-linecap="round"/>
 </svg>

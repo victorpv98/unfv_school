@@ -1,4 +1,4 @@
-# UNFV School
+# IEP Sagrado Corazón
 
 Sistema web de gestion escolar desarrollado en Laravel para administrar alumnos, apoderados, docentes, matriculas, pagos, moras, comunicados y evaluaciones docentes.
 

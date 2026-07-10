@@ -211,7 +211,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'Bienvenida al año escolar 2026',
             'target_type' => 'all_users',
         ], [
-            'message' => 'Bienvenidos al sistema de comunicados de la IEP San Genaro.',
+            'message' => 'Bienvenidos al sistema de comunicados de la IEP Sagrado Corazón.',
             'type' => 'general',
             'priority' => 'normal',
             'status' => 'published',

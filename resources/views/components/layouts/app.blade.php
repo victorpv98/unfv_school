@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'IEP San Genaro' }}</title>
+    <title>{{ $title ?? 'IEP Sagrado Corazón' }}</title>
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
@@ -166,9 +166,9 @@
                 <div class="border-b border-[#e2e1db] px-4 py-3">
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex min-w-0 items-center">
-                            <img src="{{ asset('images/logo_san_genaro.svg') }}" alt="Logo IEP San Genaro" class="mr-2.5 h-9 w-9 rounded-lg border border-[#e2e1db] bg-white p-1">
+                            <img src="{{ asset('images/logo_san_genaro.svg') }}" alt="Logo IEP Sagrado Corazón" class="mr-2.5 h-9 w-9 rounded-lg border border-[#e2e1db] bg-white p-1">
                             <div class="min-w-0">
-                                <h1 class="truncate text-sm font-bold text-[#17427f]">IEP San Genaro</h1>
+                                <h1 class="truncate text-sm font-bold text-[#17427f]">IEP Sagrado Corazón</h1>
                                 <p class="mt-0.5 truncate text-xs text-[#73726c]">Gestión Escolar</p>
                             </div>
                         </div>
@@ -287,7 +287,7 @@
                 <header class="sticky top-0 z-20 border-b border-[#e2e1db] bg-white/95 backdrop-blur">
                     <div class="flex items-center justify-between px-5 py-2.5">
                         <div>
-                            <h2 class="text-base font-bold text-[#17427f]">{{ $title ?? 'IEP San Genaro' }}</h2>
+                            <h2 class="text-base font-bold text-[#17427f]">{{ $title ?? 'IEP Sagrado Corazón' }}</h2>
                             <p class="text-xs font-medium text-[#73726c]">Matrícula, pagos y evaluación docente</p>
                         </div>
                         <div class="school-badge rounded-md px-3 py-1.5 text-xs font-semibold">{{ auth()->user()->role_label }}</div>

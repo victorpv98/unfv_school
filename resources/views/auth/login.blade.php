@@ -1,8 +1,8 @@
 <x-layouts.app title="Iniciar sesión">
     <div class="school-panel mx-auto mt-10 max-w-md rounded-xl p-8">
         <div class="mb-6 text-center">
-            <img src="{{ asset('images/logo_san_genaro.svg') }}" alt="Logo IEP San Genaro" class="mx-auto h-20 w-20 rounded-xl border border-[#e2e1db] bg-white p-2">
-            <h1 class="mt-4 text-2xl font-bold text-[#17427f]">IEP San Genaro</h1>
+            <img src="{{ asset('images/logo_san_genaro.svg') }}" alt="Logo IEP Sagrado Corazón" class="mx-auto h-20 w-20 rounded-xl border border-[#e2e1db] bg-white p-2">
+            <h1 class="mt-4 text-2xl font-bold text-[#17427f]">IEP Sagrado Corazón</h1>
             <p class="mt-1 text-sm font-medium text-[#73726c]">Gestión Escolar</p>
         </div>
         <p class="mt-2 text-center text-sm text-[#73726c]">Matrícula de alumnos y evaluación docente</p>

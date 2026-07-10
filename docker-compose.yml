@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:80"
     environment:
-      APP_NAME: "${APP_NAME:-UNFV School}"
+      APP_NAME: "${APP_NAME:-IEP Sagrado Corazón}"
       APP_ENV: "${APP_ENV:-production}"
       APP_KEY: "${APP_KEY}"
       APP_DEBUG: "${APP_DEBUG:-false}"
