@@ -1,0 +1,9 @@
+.git
+.gitignore
+node_modules
+npm-debug.log
+vendor
+.env
+.env.*
+.phpunit.result.cache
+bootstrap/cache/*.php

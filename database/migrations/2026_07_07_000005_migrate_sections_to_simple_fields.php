@@ -50,19 +50,25 @@ return new class extends Migration
                 }
             });
 
+            $assignmentColumns = Schema::hasColumn('teacher_assignments', 'section_id')
+                ? ['id', 'grade_id', 'section_id']
+                : ['id', 'grade_id'];
+
             DB::table('teacher_assignments')
-                ->select(['id', 'grade_id', 'section_id'])
+                ->select($assignmentColumns)
                 ->orderBy('id')
                 ->get()
                 ->each(function (object $assignment) use ($sections): void {
                     $levelId = DB::table('grades')->where('id', $assignment->grade_id)->value('level_id');
+                    $updates = ['level_id' => $levelId];
+
+                    if (property_exists($assignment, 'section_id')) {
+                        $updates['section'] = $sections[$assignment->section_id] ?? 'A';
+                    }
 
                     DB::table('teacher_assignments')
                         ->where('id', $assignment->id)
-                        ->update([
-                            'level_id' => $levelId,
-                            'section' => $sections[$assignment->section_id] ?? 'A',
-                        ]);
+                        ->update($updates);
                 });
 
             if (Schema::hasColumn('teacher_assignments', 'section_id')) {

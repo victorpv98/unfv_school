@@ -1,0 +1,51 @@
+services:
+  app:
+    build: .
+    container_name: unfv_school_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      APP_NAME: "${APP_NAME:-UNFV School}"
+      APP_ENV: "${APP_ENV:-production}"
+      APP_KEY: "${APP_KEY}"
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      APP_URL: "${APP_URL:-http://localhost:8000}"
+      PORT: "${APP_PORT:-80}"
+      DB_CONNECTION: "${DB_CONNECTION:-pgsql}"
+      DB_HOST: "${DOCKER_DB_HOST:-db}"
+      DB_PORT: "${DOCKER_DB_PORT:-5432}"
+      DB_DATABASE: "${DB_DATABASE:-unfv_school}"
+      DB_USERNAME: "${DB_USERNAME:-unfv_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-1234}"
+      SESSION_DRIVER: "${SESSION_DRIVER:-database}"
+      CACHE_STORE: "${CACHE_STORE:-file}"
+      QUEUE_CONNECTION: "${QUEUE_CONNECTION:-database}"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+
+  db:
+    image: postgres:15
+    container_name: unfv_school_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-unfv_school}"
+      POSTGRES_USER: "${DB_USERNAME:-unfv_user}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-1234}"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-unfv_user} -d ${DB_DATABASE:-unfv_school}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  postgres_data:
