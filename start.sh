@@ -6,6 +6,12 @@ cd "${APP_DIR}"
 
 rm -f bootstrap/cache/*.php || true
 
+if [ -n "${DB_PORT:-}" ] && ! [[ "${DB_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "Invalid DB_PORT value: ${DB_PORT}" >&2
+  echo "DB_PORT must be a number. For Railway Postgres private networking use 5432." >&2
+  exit 1
+fi
+
 chown -R www-data:www-data storage bootstrap/cache || true
 find storage -type d -exec chmod 0775 {} \; || true
 find storage -type f -exec chmod 0664 {} \; || true
