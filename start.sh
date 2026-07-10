@@ -50,6 +50,11 @@ until runuser -u www-data -- php artisan migrate --force --no-interaction --no-a
   sleep 5
 done
 
+if [ "${RUN_DEMO_USERS_ON_BOOT:-false}" = "true" ]; then
+  echo "Running DemoUsersSeeder on boot..."
+  runuser -u www-data -- php artisan db:seed --class=DemoUsersSeeder --force --no-interaction --no-ansi || true
+fi
+
 if [ "${RUN_SEEDERS_ON_BOOT:-false}" = "true" ]; then
   echo "Running DatabaseSeeder on boot..."
   runuser -u www-data -- php artisan db:seed --force --no-interaction --no-ansi || true

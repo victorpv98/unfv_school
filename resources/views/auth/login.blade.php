@@ -18,6 +18,5 @@
             </div>
             <button class="school-button-primary w-full rounded-md px-4 py-2.5 font-semibold">Ingresar</button>
         </form>
-        <p class="mt-4 rounded-md bg-[#f7f7f5] px-3 py-2 text-xs text-[#73726c]">Usuario inicial: admin@school.test / password</p>
     </div>
 </x-layouts.app>

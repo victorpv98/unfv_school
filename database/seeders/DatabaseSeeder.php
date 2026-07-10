@@ -18,36 +18,16 @@ use App\Models\StudentPayment;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@school.test'],
-            ['role' => 'administrador', 'name' => 'Administrador', 'password' => Hash::make('password'), 'is_active' => true]
-        );
+        $this->call(DemoUsersSeeder::class);
 
-        User::updateOrCreate(
-            ['email' => 'secretaria@school.test'],
-            ['role' => 'secretaria', 'name' => 'Secretaría Demo', 'password' => Hash::make('password'), 'is_active' => true]
-        );
-
-        $studentUser = User::updateOrCreate(
-            ['email' => 'alumno@school.test'],
-            ['role' => 'alumno', 'name' => 'Alumno Demo', 'password' => Hash::make('password'), 'is_active' => true]
-        );
-
-        $guardianUser = User::updateOrCreate(
-            ['email' => 'apoderado@school.test'],
-            ['role' => 'apoderado', 'name' => 'Apoderado Demo', 'password' => Hash::make('password'), 'is_active' => true]
-        );
-
-        $teacherUser = User::updateOrCreate(
-            ['email' => 'docente@school.test'],
-            ['role' => 'docente', 'name' => 'Docente Demo', 'password' => Hash::make('password'), 'is_active' => true]
-        );
+        $studentUser = User::where('email', 'alumno@school.test')->firstOrFail();
+        $guardianUser = User::where('email', 'apoderado@school.test')->firstOrFail();
+        $teacherUser = User::where('email', 'docente@school.test')->firstOrFail();
 
         $year = AcademicYear::firstOrCreate(['year' => 2026], [
             'starts_at' => '2026-03-01',
