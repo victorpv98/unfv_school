@@ -31,15 +31,15 @@ El proyecto esta orientado a una institucion de nivel Inicial y Primaria, con se
 
 ## Roles y Accesos
 
-El seeder crea usuarios demo con la clave `password`:
+El seeder crea usuarios base con la clave `123456`:
 
 | Rol | Email |
 | --- | --- |
-| Administrador | `admin@school.test` |
-| Secretaria | `secretaria@school.test` |
-| Alumno | `alumno@school.test` |
-| Apoderado | `apoderado@school.test` |
-| Docente | `docente@school.test` |
+| Administrador | `admin@school.com` |
+| Secretaria | `secretaria@school.com` |
+| Alumno | `alumno@school.com` |
+| Apoderado | `apoderado@school.com` |
+| Docente | `docente@school.com` |
 
 ## Instalacion
 

@@ -21,15 +21,15 @@ class SchoolFlowTest extends TestCase
         $this->seed();
 
         foreach ([
-            'admin@school.test',
-            'secretaria@school.test',
-            'docente@school.test',
-            'alumno@school.test',
-            'apoderado@school.test',
+            'admin@school.com',
+            'secretaria@school.com',
+            'docente@school.com',
+            'alumno@school.com',
+            'apoderado@school.com',
         ] as $email) {
             $this->post('/login', [
                 'email' => $email,
-                'password' => 'password',
+                'password' => '123456',
             ])->assertRedirect('/dashboard');
 
             $this->post('/logout')->assertRedirect('/');
@@ -40,7 +40,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $studentUser = User::where('email', 'alumno@school.test')->firstOrFail();
+        $studentUser = User::where('email', 'alumno@school.com')->firstOrFail();
 
         $this->actingAs($studentUser)
             ->get('/admin/users')
@@ -51,7 +51,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $secretary = User::where('email', 'secretaria@school.test')->firstOrFail();
+        $secretary = User::where('email', 'secretaria@school.com')->firstOrFail();
         $payment = StudentPayment::with(['student', 'paymentConcept'])->firstOrFail();
 
         $this->actingAs($secretary)
@@ -80,7 +80,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->post('/matriculas/nueva', [
@@ -106,7 +106,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $studentUser = User::where('email', 'alumno@school.test')->firstOrFail();
+        $studentUser = User::where('email', 'alumno@school.com')->firstOrFail();
         $teacher = Teacher::firstOrFail();
         $criteria = EvaluationCriterion::where('evaluator_type', 'alumno')->pluck('id');
 
@@ -130,7 +130,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $guardianUser = User::where('email', 'apoderado@school.test')->firstOrFail();
+        $guardianUser = User::where('email', 'apoderado@school.com')->firstOrFail();
         $teacher = Teacher::firstOrFail();
         $criteria = EvaluationCriterion::where('evaluator_type', 'apoderado')->pluck('id');
 
@@ -148,7 +148,7 @@ class SchoolFlowTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
         $conceptCount = PaymentConcept::where('academic_year_id', 1)->count();
 
         $this->actingAs($admin)

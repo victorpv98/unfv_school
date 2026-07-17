@@ -14,7 +14,7 @@ class EnrollmentResourceTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->get('/admin/enrollments')
@@ -27,7 +27,7 @@ class EnrollmentResourceTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->get('/admin/enrollments/create')

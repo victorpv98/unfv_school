@@ -12,22 +12,31 @@ class DemoUsersSeeder extends Seeder
      * @var array<int, array{email: string, role: string, name: string}>
      */
     private array $users = [
-        ['email' => 'admin@school.test', 'role' => 'administrador', 'name' => 'Administrador Demo'],
-        ['email' => 'secretaria@school.test', 'role' => 'secretaria', 'name' => 'Secretaria Demo'],
-        ['email' => 'docente@school.test', 'role' => 'docente', 'name' => 'Docente Demo'],
-        ['email' => 'alumno@school.test', 'role' => 'alumno', 'name' => 'Alumno Demo'],
-        ['email' => 'apoderado@school.test', 'role' => 'apoderado', 'name' => 'Apoderado Demo'],
+        ['email' => 'admin@school.com', 'role' => 'administrador', 'name' => 'Administrador'],
+        ['email' => 'secretaria@school.com', 'role' => 'secretaria', 'name' => 'Secretaria'],
+        ['email' => 'docente@school.com', 'role' => 'docente', 'name' => 'Docente'],
+        ['email' => 'alumno@school.com', 'role' => 'alumno', 'name' => 'Alumno'],
+        ['email' => 'apoderado@school.com', 'role' => 'apoderado', 'name' => 'Apoderado'],
     ];
 
     public function run(): void
     {
+        foreach ($this->users as $user) {
+            $oldEmail = str_replace('@school.com', '@school.test', $user['email']);
+            $newExists = User::where('email', $user['email'])->exists();
+
+            if (! $newExists) {
+                User::where('email', $oldEmail)->update(['email' => $user['email']]);
+            }
+        }
+
         foreach ($this->users as $user) {
             User::updateOrCreate(
                 ['email' => $user['email']],
                 [
                     'role' => $user['role'],
                     'name' => $user['name'],
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('123456'),
                     'is_active' => true,
                     'must_change_password' => false,
                     'access_created_automatically' => false,

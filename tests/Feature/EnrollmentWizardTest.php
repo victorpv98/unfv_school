@@ -17,7 +17,7 @@ class EnrollmentWizardTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->post('/matriculas/nueva', [

@@ -17,7 +17,7 @@ class PaymentFeatureTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->get('/admin/payment-concepts?q=2026')
@@ -30,7 +30,7 @@ class PaymentFeatureTest extends TestCase
     {
         $this->seed();
 
-        $guardian = User::where('email', 'apoderado@school.test')->firstOrFail();
+        $guardian = User::where('email', 'apoderado@school.com')->firstOrFail();
 
         $this->actingAs($guardian)
             ->get('/pagos')
@@ -46,7 +46,7 @@ class PaymentFeatureTest extends TestCase
     {
         $this->seed();
 
-        $secretary = User::where('email', 'secretaria@school.test')->firstOrFail();
+        $secretary = User::where('email', 'secretaria@school.com')->firstOrFail();
         $concept = PaymentConcept::where('type', 'mensualidad')->firstOrFail();
         $student = Student::create([
             'code' => 'ALU-999',

@@ -21,7 +21,7 @@ class LateFeeAndAnnouncementTest extends TestCase
         $this->seed();
 
         LateFeeSetting::query()->delete();
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->post('/admin/configuracion/moras', [
@@ -48,7 +48,7 @@ class LateFeeAndAnnouncementTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->post('/admin/configuracion/moras', [
@@ -129,7 +129,7 @@ class LateFeeAndAnnouncementTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::where('email', 'admin@school.test')->firstOrFail();
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
 
         $this->actingAs($admin)
             ->post('/comunicados', [
@@ -151,7 +151,7 @@ class LateFeeAndAnnouncementTest extends TestCase
     {
         $this->seed();
 
-        $secretary = User::where('email', 'secretaria@school.test')->firstOrFail();
+        $secretary = User::where('email', 'secretaria@school.com')->firstOrFail();
 
         $this->actingAs($secretary)
             ->post('/comunicados', [
@@ -173,7 +173,7 @@ class LateFeeAndAnnouncementTest extends TestCase
     {
         $this->seed();
 
-        $user = User::where('email', 'alumno@school.test')->firstOrFail();
+        $user = User::where('email', 'alumno@school.com')->firstOrFail();
         $announcement = Announcement::where('status', 'published')->firstOrFail();
 
         $this->actingAs($user)
