@@ -2,7 +2,7 @@
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-[#123b7a]">Calificar docentes</h2>
         @if($period)
-            <p class="text-slate-600">Periodo activo: {{ $period->name }} ({{ $period->starts_at->format('d/m/Y') }} - {{ $period->ends_at->format('d/m/Y') }})</p>
+            <p class="text-slate-600">Ventana vigente: {{ ucfirst($window['label']) }} ({{ $window['starts_at']->format('d/m/Y') }} - {{ $window['ends_at']->format('d/m/Y') }})</p>
         @else
             <p class="text-red-700">No hay periodo de evaluación activo.</p>
         @endif

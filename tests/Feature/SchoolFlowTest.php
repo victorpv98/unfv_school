@@ -9,6 +9,7 @@ use App\Models\StudentPayment;
 use App\Models\Teacher;
 use App\Models\TeacherEvaluation;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -115,6 +116,7 @@ class SchoolFlowTest extends TestCase
 
     public function test_student_can_evaluate_teacher_only_once_per_period(): void
     {
+        Carbon::setTestNow('2026-01-15 10:00:00');
         $this->seed();
 
         $studentUser = User::where('email', 'alumno@school.com')->firstOrFail();
@@ -135,10 +137,20 @@ class SchoolFlowTest extends TestCase
         $this->actingAs($studentUser)
             ->post("/evaluaciones/{$teacher->id}", $payload)
             ->assertForbidden();
+
+        Carbon::setTestNow('2026-07-15 10:00:00');
+
+        $this->actingAs($studentUser)
+            ->post("/evaluaciones/{$teacher->id}", $payload)
+            ->assertRedirect('/evaluaciones');
+
+        $this->assertSame(2, TeacherEvaluation::where('teacher_id', $teacher->id)->where('user_id', $studentUser->id)->count());
+        Carbon::setTestNow();
     }
 
     public function test_guardian_can_evaluate_teacher_of_associated_child(): void
     {
+        Carbon::setTestNow('2026-01-15 10:00:00');
         $this->seed();
 
         $guardianUser = User::where('email', 'apoderado@school.com')->firstOrFail();
@@ -153,6 +165,25 @@ class SchoolFlowTest extends TestCase
             ->assertRedirect('/evaluaciones');
 
         $this->assertSame(1, TeacherEvaluation::where('teacher_id', $teacher->id)->where('user_id', $guardianUser->id)->count());
+
+        $this->actingAs($guardianUser)
+            ->post("/evaluaciones/{$teacher->id}", [
+                'scores' => $criteria->mapWithKeys(fn (int $id) => [$id => 4])->all(),
+                'comment' => 'Intento duplicado.',
+            ])
+            ->assertForbidden();
+
+        Carbon::setTestNow('2026-04-15 10:00:00');
+
+        $this->actingAs($guardianUser)
+            ->post("/evaluaciones/{$teacher->id}", [
+                'scores' => $criteria->mapWithKeys(fn (int $id) => [$id => 4])->all(),
+                'comment' => 'Nueva ventana trimestral.',
+            ])
+            ->assertRedirect('/evaluaciones');
+
+        $this->assertSame(2, TeacherEvaluation::where('teacher_id', $teacher->id)->where('user_id', $guardianUser->id)->count());
+        Carbon::setTestNow();
     }
 
     public function test_enrollment_generation_uses_simple_section_field(): void

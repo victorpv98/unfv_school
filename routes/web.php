@@ -97,7 +97,8 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/apoderado/hijos', '/pagos')->middleware(CheckRole::class.':apoderado')->name('guardian.children.index');
     Route::redirect('/docente/evaluaciones', '/reportes')->middleware(CheckRole::class.':docente')->name('teacher.evaluations.index');
 
-    Route::middleware(CheckRole::class.':administrador,docente')
-        ->get('/reportes', ReportController::class)
-        ->name('reports.index');
+    Route::middleware(CheckRole::class.':administrador,secretaria,docente')->group(function () {
+        Route::get('/reportes', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reportes/export/{format}', [ReportController::class, 'export'])->name('reports.export');
+    });
 });

@@ -2,6 +2,7 @@
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-[#123b7a]">Evaluar a {{ $teacher->first_names }} {{ $teacher->last_names }}</h2>
         <p class="text-slate-600">Tipo de evaluación: {{ ucfirst($type) }}. Escala: 1 muy bajo, 5 excelente.</p>
+        <p class="text-sm text-slate-500">Ventana vigente: {{ ucfirst($window['label']) }} ({{ $window['starts_at']->format('d/m/Y') }} - {{ $window['ends_at']->format('d/m/Y') }}).</p>
     </div>
 
     <form class="school-panel rounded-lg p-6" method="POST" action="{{ route('evaluations.store', $teacher) }}">
