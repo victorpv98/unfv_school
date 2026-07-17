@@ -20,7 +20,7 @@ class EvaluationController extends Controller
 {
     public function index(): View
     {
-        abort_unless(Auth::user()->hasRole('alumno', 'apoderado', 'administrador'), 403);
+        abort_unless(Auth::user()->hasRole('alumno', 'apoderado'), 403);
 
         $period = $this->activePeriod();
         $teachers = app(EvaluationEligibilityService::class)->eligibleTeachersFor(Auth::user());
@@ -33,7 +33,7 @@ class EvaluationController extends Controller
 
     public function create(Teacher $teacher): View
     {
-        abort_unless(Auth::user()->hasRole('alumno', 'apoderado', 'administrador'), 403);
+        abort_unless(Auth::user()->hasRole('alumno', 'apoderado'), 403);
 
         $period = $this->activePeriod();
         abort_if(! $period, 403, 'No hay periodo de evaluación activo.');
@@ -57,7 +57,7 @@ class EvaluationController extends Controller
 
     public function store(Request $request, Teacher $teacher): RedirectResponse
     {
-        abort_unless(Auth::user()->hasRole('alumno', 'apoderado', 'administrador'), 403);
+        abort_unless(Auth::user()->hasRole('alumno', 'apoderado'), 403);
 
         $period = $this->activePeriod();
         abort_if(! $period, 403, 'No hay periodo de evaluación activo.');

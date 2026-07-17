@@ -114,6 +114,20 @@ class ResourceController extends Controller
 
         $data = $request->validate($rules);
 
+        if (($config['model'] ?? null) === \App\Models\Student::class && ! empty($data['guardian_ids'])) {
+            $relationships = \App\Models\Guardian::whereIn('id', $data['guardian_ids'])
+                ->pluck('relationship')
+                ->filter()
+                ->map(fn (string $relationship) => trim($relationship))
+                ->all();
+
+            if (count($relationships) !== count(array_unique($relationships))) {
+                throw ValidationException::withMessages([
+                    'guardian_ids' => 'Un alumno solo puede tener un apoderado por parentesco: Madre, Padre y Apoderado.',
+                ]);
+            }
+        }
+
         foreach ($config['fields'] as $name => $field) {
             if (($field['type'] ?? 'text') === 'boolean') {
                 $data[$name] = $request->boolean($name);

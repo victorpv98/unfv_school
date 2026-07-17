@@ -14,10 +14,6 @@ class EvaluationEligibilityService
 {
     public function eligibleTeachersFor(User $user): Collection
     {
-        if ($user->hasRole('administrador')) {
-            return Teacher::where('status', 'activo')->orderBy('last_names')->get();
-        }
-
         $enrollments = $this->activeEnrollmentsFor($user);
 
         if ($enrollments->isEmpty()) {

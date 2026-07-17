@@ -28,7 +28,7 @@
                         </select>
                     @elseif($type === 'multiselect')
                         @php($selectedValues = collect(old($name, $item ? $item->{$field['relation']}->pluck('id')->all() : []))->map(fn($value) => (string) $value)->all())
-                        <div class="mt-2 rounded-lg border border-[#e7e5c9] bg-white">
+                        <div class="mt-2 rounded-lg border border-[#e7e5c9] bg-white" data-multiselect data-max-selected="{{ $field['max_selected'] ?? '' }}">
                             <div class="border-b border-[#e7e5c9] bg-slate-50 px-4 py-3">
                                 <p class="text-sm font-semibold text-[#123b7a]">{{ $field['label'] }}</p>
                                 <p class="text-xs text-slate-500">
@@ -36,17 +36,28 @@
                                     @if(array_key_exists('is_primary', $field))
                                         El primero de la lista que esté marcado quedará como principal.
                                     @endif
+                                    @isset($field['max_selected'])
+                                        Máximo {{ $field['max_selected'] }}.
+                                    @endisset
                                 </p>
+                                <input
+                                    class="mt-3 w-full rounded-md px-3 py-2 text-sm"
+                                    type="search"
+                                    placeholder="Buscar..."
+                                    data-multiselect-search
+                                >
+                                <p class="mt-2 text-xs text-slate-500" data-multiselect-summary></p>
                             </div>
                             <div class="max-h-72 space-y-2 overflow-y-auto p-4">
                                 @forelse($options[$name] ?? [] as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-3 hover:bg-slate-50">
+                                    <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-3 hover:bg-slate-50" data-multiselect-option data-label="{{ Str::lower($label) }}">
                                         <input class="mt-1 rounded border-slate-300 text-[#123b7a]" type="checkbox" name="{{ $name }}[]" value="{{ $value }}" @checked(in_array((string) $value, $selectedValues, true))>
                                         <span class="text-sm text-slate-800">{{ $label }}</span>
                                     </label>
                                 @empty
                                     <p class="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">No hay registros disponibles para asociar.</p>
                                 @endforelse
+                                <p class="hidden rounded-md bg-yellow-50 p-3 text-sm text-yellow-800" data-multiselect-empty>No se encontraron registros con esa búsqueda.</p>
                             </div>
                         </div>
                     @elseif($type === 'textarea')
@@ -68,4 +79,51 @@
             <a class="rounded-md bg-slate-100 px-4 py-2 hover:bg-slate-200" href="{{ route('resources.index', $resource) }}">Cancelar</a>
         </div>
     </form>
+
+    <script>
+        document.querySelectorAll('[data-multiselect]').forEach((container) => {
+            const search = container.querySelector('[data-multiselect-search]');
+            const summary = container.querySelector('[data-multiselect-summary]');
+            const empty = container.querySelector('[data-multiselect-empty]');
+            const options = Array.from(container.querySelectorAll('[data-multiselect-option]'));
+            const checks = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+            const maxSelected = Number(container.dataset.maxSelected || 0);
+
+            const refresh = () => {
+                const term = (search?.value || '').trim().toLowerCase();
+                let visible = 0;
+
+                options.forEach((option) => {
+                    const matches = option.dataset.label.includes(term);
+                    option.classList.toggle('hidden', !matches);
+                    if (matches) {
+                        visible++;
+                    }
+                });
+
+                if (empty) {
+                    empty.classList.toggle('hidden', visible > 0);
+                }
+
+                const selected = checks.filter((check) => check.checked).length;
+                if (summary) {
+                    const maxText = maxSelected ? ` de ${maxSelected}` : '';
+                    summary.textContent = `${selected}${maxText} seleccionados · ${visible} visibles`;
+                }
+            };
+
+            checks.forEach((check) => {
+                check.addEventListener('change', () => {
+                    if (maxSelected && check.checked && checks.filter((item) => item.checked).length > maxSelected) {
+                        check.checked = false;
+                    }
+
+                    refresh();
+                });
+            });
+
+            search?.addEventListener('input', refresh);
+            refresh();
+        });
+    </script>
 </x-layouts.app>

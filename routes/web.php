@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/asignacion-docente', [TeacherAssignmentController::class, 'store'])->name('teacher-assignments.store');
     });
 
-    Route::middleware(CheckRole::class.':alumno,apoderado,administrador')->group(function () {
+    Route::middleware(CheckRole::class.':alumno,apoderado')->group(function () {
         Route::get('/evaluaciones', [EvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluaciones/{teacher}', [EvaluationController::class, 'create'])->name('evaluations.create');
         Route::post('/evaluaciones/{teacher}', [EvaluationController::class, 'store'])->name('evaluations.store');

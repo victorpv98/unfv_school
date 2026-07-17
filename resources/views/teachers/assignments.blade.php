@@ -41,7 +41,7 @@
                 <select class="mt-1 w-full rounded-md px-3 py-2" name="course_id" required>
                     <option value="">Seleccione</option>
                     @foreach($courses as $course)
-                        <option value="{{ $course->id }}">{{ $course->name }}</option>
+                        <option value="{{ $course->id }}">{{ $course->name }} - {{ $course->level?->name }} {{ $course->grade?->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -69,7 +69,71 @@
         </div>
     </form>
 
+    <form class="school-panel mt-8 rounded-lg p-6" method="GET" action="{{ route('teacher-assignments.index') }}">
+        <div class="mb-4 flex flex-col justify-between gap-3 md:flex-row md:items-center">
+            <div>
+                <h3 class="text-lg font-semibold text-[#123b7a]">Filtros</h3>
+                <p class="text-sm text-slate-500">Filtra las asignaciones registradas.</p>
+            </div>
+            <div class="flex gap-2">
+                <a class="school-button-secondary rounded-md px-4 py-2 text-sm font-semibold" href="{{ route('teacher-assignments.index') }}">Limpiar</a>
+                <button class="school-button-primary rounded-md px-4 py-2 text-sm font-semibold">Filtrar</button>
+            </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-5">
+            <div>
+                <label class="text-sm font-medium text-[#123b7a]">Año escolar</label>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="academic_year_id">
+                    <option value="">Todos</option>
+                    @foreach($academicYears as $year)
+                        <option value="{{ $year->id }}" @selected(($filters['academic_year_id'] ?? '') == $year->id)>{{ $year->year }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-[#123b7a]">Docente</label>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="teacher_id">
+                    <option value="">Todos</option>
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}" @selected(($filters['teacher_id'] ?? '') == $teacher->id)>{{ $teacher->first_names }} {{ $teacher->last_names }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-[#123b7a]">Curso</label>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="course_id">
+                    <option value="">Todos</option>
+                    @foreach($courses as $course)
+                        <option value="{{ $course->id }}" @selected(($filters['course_id'] ?? '') == $course->id)>{{ $course->name }} - {{ $course->level?->name }} {{ $course->grade?->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-[#123b7a]">Grado</label>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="grade_id">
+                    <option value="">Todos</option>
+                    @foreach($grades as $grade)
+                        <option value="{{ $grade->id }}" @selected(($filters['grade_id'] ?? '') == $grade->id)>{{ $grade->level->name }} - {{ $grade->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-[#123b7a]">Sección</label>
+                <select class="mt-1 w-full rounded-md px-3 py-2" name="section">
+                    <option value="">Todas</option>
+                    @foreach($sections as $section)
+                        <option value="{{ $section }}" @selected(($filters['section'] ?? '') === $section)>{{ $section }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </form>
+
     <div class="school-panel mt-8 overflow-x-auto rounded-lg">
+        <div class="border-b border-slate-200 px-4 py-3 text-sm text-slate-600">
+            {{ $assignments->count() }} asignaciones encontradas.
+        </div>
         <table class="w-full text-left text-sm">
             <thead class="bg-slate-50 text-slate-600">
                 <tr>

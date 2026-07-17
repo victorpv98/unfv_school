@@ -198,8 +198,8 @@
                         <a class="school-nav-link {{ request()->routeIs('announcements.*') ? 'is-active' : '' }}" href="{{ route('announcements.index') }}">
                             <span class="school-nav-dot">C</span>Comunicados
                         </a>
-                        <a class="school-nav-link {{ request()->routeIs('evaluations.*') ? 'is-active' : '' }}" href="{{ route('evaluations.index') }}">
-                            <span class="school-nav-dot">E</span>Calificar docentes
+                        <a class="school-nav-link {{ request()->routeIs('late-fees.payments.*') ? 'is-active' : '' }}" href="{{ route('late-fees.payments.index') }}">
+                            <span class="school-nav-dot">!</span>Pagos en mora
                         </a>
                         <a class="school-nav-link {{ request()->routeIs('reports.*') ? 'is-active' : '' }}" href="{{ route('reports.index') }}">
                             <span class="school-nav-dot">R</span>Reportes

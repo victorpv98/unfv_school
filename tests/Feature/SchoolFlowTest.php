@@ -47,6 +47,17 @@ class SchoolFlowTest extends TestCase
             ->assertRedirect('/dashboard');
     }
 
+    public function test_admin_cannot_evaluate_teachers(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@school.com')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get('/evaluaciones')
+            ->assertRedirect('/dashboard');
+    }
+
     public function test_secretary_can_register_a_payment(): void
     {
         $this->seed();
