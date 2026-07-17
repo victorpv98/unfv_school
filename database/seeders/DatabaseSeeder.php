@@ -7,9 +7,6 @@ use App\Models\Announcement;
 use App\Models\AnnouncementRecipient;
 use App\Models\Course;
 use App\Models\Enrollment;
-use App\Models\EvaluationCriterion;
-use App\Models\EvaluationDetail;
-use App\Models\EvaluationPeriod;
 use App\Models\Grade;
 use App\Models\Guardian;
 use App\Models\LateFeeSetting;
@@ -18,7 +15,6 @@ use App\Models\PaymentConcept;
 use App\Models\Student;
 use App\Models\StudentPayment;
 use App\Models\Teacher;
-use App\Models\TeacherEvaluation;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +44,7 @@ class DatabaseSeeder extends Seeder
             $payments = $this->studentPayments($enrollments, $concepts, $admin, $secretary);
             $this->lateFeeSettings($years, $admin);
             $this->announcements($years['2026'], $catalog, $teachers, $students, $payments, $admin);
-            $this->evaluations($teachers, $students);
+            $this->call(EvaluationDemoSeeder::class);
         });
     }
 
@@ -731,75 +727,4 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    /**
-     * @param  array<string, Teacher>  $teachers
-     * @param  array<int, Student>  $students
-     */
-    private function evaluations(array $teachers, array $students): void
-    {
-        $period = EvaluationPeriod::updateOrCreate(
-            ['name' => 'Evaluación Docente 2026 - I Bimestre'],
-            [
-                'starts_at' => now()->subMonth()->toDateString(),
-                'ends_at' => now()->addMonth()->toDateString(),
-                'status' => 'activo',
-            ]
-        );
-
-        $criteriaRows = [
-            ['alumno', 'Explicación clara', 'El docente explica los temas de forma comprensible.'],
-            ['alumno', 'Trato respetuoso', 'El docente mantiene una relación respetuosa con los estudiantes.'],
-            ['alumno', 'Uso de actividades', 'El docente propone actividades que ayudan a aprender.'],
-            ['alumno', 'Puntualidad', 'El docente cumple con los horarios de clase.'],
-            ['apoderado', 'Comunicación con la familia', 'El docente informa avances y dificultades oportunamente.'],
-            ['apoderado', 'Responsabilidad', 'El docente cumple con sus compromisos académicos.'],
-            ['apoderado', 'Acompañamiento', 'El docente acompaña el progreso del estudiante.'],
-            ['apoderado', 'Organización', 'El docente organiza clases y tareas de forma clara.'],
-        ];
-
-        foreach ($criteriaRows as [$type, $name, $description]) {
-            EvaluationCriterion::updateOrCreate(
-                ['evaluation_period_id' => $period->id, 'evaluator_type' => $type, 'name' => $name],
-                ['description' => $description, 'is_active' => true]
-            );
-        }
-
-        $evaluationRows = [
-            [$students[2], null, $teachers['DOC-003'], 'alumno', 'Me gustan sus actividades.', [5, 5, 4, 5]],
-            [$students[3], null, $teachers['DOC-003'], 'alumno', 'Explica con paciencia.', [5, 4, 4, 5]],
-            [$students[8], null, $teachers['DOC-002'], 'alumno', 'La clase es ordenada.', [4, 5, 4, 4]],
-            [null, $students[4]->guardians()->first(), $teachers['DOC-003'], 'apoderado', 'Mantiene buena comunicación.', [5, 4, 5, 4]],
-            [null, $students[10]->guardians()->first(), $teachers['DOC-004'], 'apoderado', 'Se observa seguimiento constante.', [4, 4, 5, 4]],
-        ];
-
-        foreach ($evaluationRows as [$student, $guardian, $teacher, $type, $comment, $scores]) {
-            $user = $type === 'alumno' ? $student?->user : $guardian?->user;
-            if (! $user) {
-                continue;
-            }
-
-            $evaluation = TeacherEvaluation::updateOrCreate(
-                ['evaluation_period_id' => $period->id, 'teacher_id' => $teacher->id, 'user_id' => $user->id],
-                [
-                    'student_id' => $student?->id,
-                    'guardian_id' => $guardian?->id,
-                    'evaluator_type' => $type,
-                    'average_score' => round(collect($scores)->avg(), 2),
-                    'comment' => $comment,
-                ]
-            );
-
-            $criteria = EvaluationCriterion::where('evaluation_period_id', $period->id)
-                ->where('evaluator_type', $type)
-                ->orderBy('id')
-                ->get();
-
-            foreach ($criteria as $index => $criterion) {
-                EvaluationDetail::updateOrCreate(
-                    ['teacher_evaluation_id' => $evaluation->id, 'evaluation_criterion_id' => $criterion->id],
-                    ['score' => $scores[$index] ?? 4]
-                );
-            }
-        }
-    }
 }

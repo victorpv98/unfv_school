@@ -122,6 +122,7 @@ class SchoolFlowTest extends TestCase
         $studentUser = User::where('email', 'alumno@school.com')->firstOrFail();
         $teacher = Teacher::firstOrFail();
         $criteria = EvaluationCriterion::where('evaluator_type', 'alumno')->pluck('id');
+        TeacherEvaluation::where('teacher_id', $teacher->id)->where('user_id', $studentUser->id)->delete();
 
         $payload = [
             'scores' => $criteria->mapWithKeys(fn (int $id) => [$id => 5])->all(),
@@ -156,6 +157,7 @@ class SchoolFlowTest extends TestCase
         $guardianUser = User::where('email', 'apoderado@school.com')->firstOrFail();
         $teacher = Teacher::firstOrFail();
         $criteria = EvaluationCriterion::where('evaluator_type', 'apoderado')->pluck('id');
+        TeacherEvaluation::where('teacher_id', $teacher->id)->where('user_id', $guardianUser->id)->delete();
 
         $this->actingAs($guardianUser)
             ->post("/evaluaciones/{$teacher->id}", [

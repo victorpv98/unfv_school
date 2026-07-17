@@ -46,6 +46,7 @@ class ReportController extends Controller
             'rows' => $data['rows'],
             'filters' => $filters,
             'options' => $this->options(),
+            'isTeacherReport' => Auth::user()->hasRole('docente'),
         ]);
     }
 
@@ -308,19 +309,32 @@ class ReportController extends Controller
             ->latest('id')
             ->limit($export ? 3000 : 100)
             ->get()
-            ->map(fn (TeacherEvaluation $evaluation): array => [
-                $evaluation->period?->name ?? '-',
-                $evaluation->teacher ? "{$evaluation->teacher->first_names} {$evaluation->teacher->last_names}" : '-',
-                ucfirst($evaluation->evaluator_type),
-                $evaluation->student ? "{$evaluation->student->code} - {$evaluation->student->first_names} {$evaluation->student->last_names}" : '-',
-                $evaluation->guardian ? "{$evaluation->guardian->first_names} {$evaluation->guardian->last_names}" : '-',
-                number_format((float) $evaluation->average_score, 2),
-                $evaluation->comment ?? '-',
-                $evaluation->created_at?->format('d/m/Y') ?? '-',
-            ])
+            ->map(function (TeacherEvaluation $evaluation) use ($teacher): array {
+                $row = [
+                    $evaluation->period?->name ?? '-',
+                    $evaluation->teacher ? "{$evaluation->teacher->first_names} {$evaluation->teacher->last_names}" : '-',
+                    ucfirst($evaluation->evaluator_type),
+                    $evaluation->student ? "{$evaluation->student->code} - {$evaluation->student->first_names} {$evaluation->student->last_names}" : '-',
+                    $evaluation->guardian ? "{$evaluation->guardian->first_names} {$evaluation->guardian->last_names}" : '-',
+                    number_format((float) $evaluation->average_score, 2),
+                    $evaluation->comment ?? '-',
+                    $evaluation->created_at?->format('d/m/Y') ?? '-',
+                ];
+
+                if ($teacher) {
+                    unset($row[1]);
+                    return array_values($row);
+                }
+
+                return $row;
+            })
             ->all();
 
-        return ['headers' => ['Periodo', 'Docente', 'Evaluador', 'Alumno', 'Apoderado', 'Promedio', 'Comentario', 'Fecha'], 'rows' => $rows];
+        $headers = $teacher
+            ? ['Periodo', 'Evaluador', 'Alumno', 'Apoderado', 'Promedio', 'Comentario', 'Fecha']
+            : ['Periodo', 'Docente', 'Evaluador', 'Alumno', 'Apoderado', 'Promedio', 'Comentario', 'Fecha'];
+
+        return ['headers' => $headers, 'rows' => $rows];
     }
 
     /**

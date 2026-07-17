@@ -45,8 +45,14 @@ class ReportExportTest extends TestCase
         $this->actingAs($teacher)
             ->get('/reportes?report=students')
             ->assertOk()
-            ->assertSee('Calificaciones')
-            ->assertDontSee('Alumnos</option>', false);
+            ->assertSee('Mis evaluaciones')
+            ->assertSee('Calificaciones recibidas')
+            ->assertSee('Tipo evaluador')
+            ->assertDontSee('Tablas filtrables para gestión y exportación.')
+            ->assertDontSee('Alumnos</option>', false)
+            ->assertDontSee('name="teacher_id"', false)
+            ->assertDontSee('Docente</th>', false)
+            ->assertDontSee('Año escolar');
     }
 
     public function test_secretary_can_access_reports_and_export(): void
